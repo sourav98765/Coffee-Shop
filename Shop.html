@@ -1,34 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Coffee Shop</title>
-	<link rel="icon" sizes="32x32" href="images/icon-brown.svg">
-	<link rel="stylesheet"  href="style.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-z3gLpd7yknf1YoNbCzqRKc4qyor8gaKU1qmn+CShxbuBusANI9QpRohGBreCFkKxLhei6S9CQXFEbbKuqLg0DA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
-
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TicketTrail Tours</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-	<header>
-		<a href=""><img src="images/logo.svg"></a>
-		<nav>
-			<a href="home.html">Home</a>
-			<a href="shop.html">Shop</a>
-			<a href="contact.html">Contact</a>
-		</nav>
-	</header>
-	
-	
-	<footer class="footer">
-		<h1>Address</h1>
-		<address>Shop #10, ABC Market, Dhaka-1230</address>
-	</footer>
+  <header class="site-header">
+    <a class="brand" href="#browse" aria-label="TicketTrail home">
+      <span class="brand-mark">TT</span>
+      <span><strong>TicketTrail</strong><small>Bangladesh tour desk</small></span>
+    </a>
+    <nav>
+      <a href="#browse">Browse</a>
+      <a href="#bookings">My Bookings</a>
+      <a href="#admin">Admin</a>
+    </nav>
+  </header>
 
+  <main>
+    <section class="hero" id="browse">
+      <div>
+        <p class="eyebrow">Travel poster meets boarding pass</p>
+        <h1>Book Bangladesh like every journey starts with a ticket stub.</h1>
+        <p>Search curated escapes, compare seats left, and switch from booking to enquiry without losing the poster-worthy itinerary.</p>
+      </div>
+      <form class="search-panel" aria-label="Filter packages">
+        <label>Destination or vibe<input id="searchInput" type="search" placeholder="Try Cox's Bazar, forest, island"></label>
+        <label>Category<select id="categoryFilter"><option value="all">All categories</option><option>Beach</option><option>Forest</option><option>Hills</option><option>Island</option><option>Lake</option></select></label>
+      </form>
+    </section>
 
+    <section class="package-grid" id="packageGrid" aria-live="polite"></section>
 
+    <section class="bookings" id="bookings">
+      <div class="section-title"><p class="eyebrow">Customer side</p><h2>My bookings</h2></div>
+      <div class="ticket-list" id="bookingList"></div>
+    </section>
 
+    <section class="admin" id="admin">
+      <div class="section-title"><p class="eyebrow">Control tower</p><h2>Admin panel</h2></div>
+      <div class="stats" id="stats"></div>
+      <div class="admin-grid">
+        <article class="panel"><h3>Packages CRUD</h3><form id="packageForm" class="crud-form"><input id="pkgName" placeholder="Package name" required><input id="pkgDestination" placeholder="Destination" required><select id="pkgCategory"><option>Beach</option><option>Forest</option><option>Hills</option><option>Island</option><option>Lake</option></select><input id="pkgPrice" type="number" placeholder="Price" required><input id="pkgSeats" type="number" placeholder="Seats" required><button type="submit">Add package</button></form><div id="adminPackages"></div></article>
+        <article class="panel"><h3>Bookings workflow</h3><div id="adminBookings"></div></article>
+        <article class="panel"><h3>Enquiries</h3><div id="adminEnquiries"></div></article>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="detailDialog"><div id="detailContent"></div></dialog>
+
+  <script>
+    let packages = [
+      {id: 1, name: "Cox's Bazar Golden Coast", destination: "Cox's Bazar", category: 'Beach', price: 14500, seats: 8, days: '3D/2N', accent: '#f97316', itinerary: ['Marine Drive sunrise', 'Inani Beach picnic', 'Sunset seafood market']},
+      {id: 2, name: 'Sundarbans Mangrove Watch', destination: 'Sundarbans', category: 'Forest', price: 21000, seats: 5, days: '4D/3N', accent: '#15803d', itinerary: ['Launch cabin check-in', 'Kotka wildlife trail', 'Silent creek safari']},
+      {id: 3, name: 'Sylhet Tea Valley Loop', destination: 'Sylhet', category: 'Hills', price: 12000, seats: 11, days: '2D/1N', accent: '#65a30d', itinerary: ['Tea garden walk', 'Jaflong stone river', 'Ratargul boat ride']},
+      {id: 4, name: 'Bandarban Cloudline Trek', destination: 'Bandarban', category: 'Hills', price: 18500, seats: 4, days: '3D/2N', accent: '#7c3aed', itinerary: ['Nilgiri viewpoint', 'Sangu river cruise', 'Tribal craft bazaar']},
+      {id: 5, name: 'Saint Martin Coral Weekend', destination: 'Saint Martin', category: 'Island', price: 16500, seats: 7, days: '3D/2N', accent: '#0891b2', itinerary: ['Ship transfer', 'Chera Dwip walk', 'Beach barbecue']},
+      {id: 6, name: 'Rangamati Lake Postcard', destination: 'Rangamati', category: 'Lake', price: 13500, seats: 9, days: '2D/1N', accent: '#2563eb', itinerary: ['Kaptai Lake cruise', 'Hanging bridge', 'Handloom market']}
+    ];
+    let bookings = [{packageId: 1, guest: 'Ayesha Rahman', status: 'Pending'}, {packageId: 3, guest: 'Tanvir Hasan', status: 'Confirmed'}, {packageId: 5, guest: 'Nadia Karim', status: 'Ticket Issued', code: 'TT-STM-204'}];
+    let enquiries = [{packageId: 2, name: 'Mahmud', message: 'Need a family cabin for four.', resolved: false}, {packageId: 4, name: 'Rupa', message: 'Is the trek beginner friendly?', resolved: false}];
+
+    const money = amount => `৳${Number(amount).toLocaleString('en-BD')}`;
+    const getPackage = id => packages.find(pkg => pkg.id === id) || packages[0];
+
+    function renderPackages() {
+      const query = searchInput.value.toLowerCase();
+      const category = categoryFilter.value;
+      packageGrid.innerHTML = packages.filter(pkg => (category === 'all' || pkg.category === category) && `${pkg.name} ${pkg.destination} ${pkg.category}`.toLowerCase().includes(query)).map(pkg => `
+        <article class="poster-card" style="--accent:${pkg.accent}">
+          <div class="stamp">${pkg.days}</div><h2>${pkg.destination}</h2><p>${pkg.name}</p>
+          <div class="meta"><span>${pkg.category}</span><span>${pkg.seats} seats left</span></div>
+          <strong>${money(pkg.price)}</strong><button onclick="openDetail(${pkg.id})">View itinerary</button>
+        </article>`).join('') || '<p class="empty">No packages match this route.</p>';
+    }
+
+    function openDetail(id) {
+      const pkg = getPackage(id);
+      detailContent.innerHTML = `<button class="close" onclick="detailDialog.close()">×</button><article class="ticket-detail" style="--accent:${pkg.accent}"><div><p class="eyebrow">${pkg.category} package</p><h2>${pkg.name}</h2><p>${pkg.destination} · ${pkg.days} · ${pkg.seats} seats left</p><ol>${pkg.itinerary.map(item => `<li>${item}</li>`).join('')}</ol></div><div class="stub"><span>${money(pkg.price)}</span><button onclick="addBooking(${id})">Book now</button><button class="ghost" onclick="sendEnquiry(${id})">Send enquiry</button></div></article>`;
+      detailDialog.showModal();
+    }
+
+    function addBooking(id) { bookings.unshift({packageId: id, guest: 'New Customer', status: 'Pending'}); detailDialog.close(); renderAll(); }
+    function sendEnquiry(id) { enquiries.unshift({packageId: id, name: 'New Customer', message: 'Please send more details.', resolved: false}); detailDialog.close(); renderAll(); }
+    function updateStatus(index) { const flow = {'Pending':'Confirmed', 'Confirmed':'Ticket Issued'}; bookings[index].status = flow[bookings[index].status] || bookings[index].status; if (bookings[index].status === 'Ticket Issued') bookings[index].code = `TT-${getPackage(bookings[index].packageId).destination.slice(0,3).toUpperCase()}-${Math.floor(100 + Math.random()*900)}`; renderAll(); }
+    function deletePackage(id) { packages = packages.filter(pkg => pkg.id !== id); renderAll(); }
+
+    function renderBookings() {
+      bookingList.innerHTML = bookings.map((booking, index) => ticketMarkup(booking, index, false)).join('');
+      adminBookings.innerHTML = bookings.map((booking, index) => ticketMarkup(booking, index, true)).join('');
+    }
+    function ticketMarkup(booking, index, admin) {
+      const pkg = getPackage(booking.packageId);
+      return `<article class="boarding-pass"><div><small>${booking.guest}</small><h3>${pkg.destination}</h3><p>${pkg.name}</p><span class="badge ${booking.status.toLowerCase().replaceAll(' ', '-')}">${booking.status}</span></div><div class="perforation"></div><div class="stub"><small>Ticket</small><strong>${booking.code || 'Awaiting'}</strong>${admin && booking.status !== 'Ticket Issued' ? `<button onclick="updateStatus(${index})">${booking.status === 'Pending' ? 'Confirm' : 'Issue Ticket'}</button>` : ''}</div></article>`;
+    }
+    function renderAdmin() {
+      const revenue = bookings.filter(b => b.status !== 'Pending').reduce((sum, b) => sum + getPackage(b.packageId).price, 0);
+      stats.innerHTML = [['Packages', packages.length], ['Active bookings', bookings.length], ['Pending enquiries', enquiries.filter(e => !e.resolved).length], ['Est. revenue', money(revenue)]].map(([k,v]) => `<div><small>${k}</small><strong>${v}</strong></div>`).join('');
+      adminPackages.innerHTML = packages.map(pkg => `<div class="admin-row"><span>${pkg.name}<em><i style="width:${Math.min(pkg.seats * 8, 100)}%"></i></em></span><button onclick="deletePackage(${pkg.id})">Delete</button></div>`).join('');
+      adminEnquiries.innerHTML = enquiries.map((enquiry, i) => `<div class="admin-row"><span><b>${getPackage(enquiry.packageId).destination}</b><br>${enquiry.name}: ${enquiry.message}</span><button onclick="enquiries[${i}].resolved=true;renderAll()">${enquiry.resolved ? 'Resolved' : 'Mark resolved'}</button></div>`).join('');
+    }
+    packageForm.addEventListener('submit', event => { event.preventDefault(); packages.push({id: Date.now(), name: pkgName.value, destination: pkgDestination.value, category: pkgCategory.value, price: pkgPrice.value, seats: pkgSeats.value, days: 'Custom', accent: '#0f172a', itinerary: ['Custom itinerary planning', 'Guide coordination', 'Ticket desk support']}); packageForm.reset(); renderAll(); });
+    searchInput.addEventListener('input', renderPackages); categoryFilter.addEventListener('change', renderPackages);
+    function renderAll() { renderPackages(); renderBookings(); renderAdmin(); }
+    renderAll();
+  </script>
 </body>
 </html>
